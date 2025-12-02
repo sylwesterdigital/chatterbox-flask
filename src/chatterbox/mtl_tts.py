@@ -163,9 +163,10 @@ class ChatterboxMultilingualTTS:
 
         ve = VoiceEncoder()
         ve.load_state_dict(
-            torch.load(ckpt_dir / "ve.pt", weights_only=True)
+            torch.load(ckpt_dir / "ve.pt", map_location=torch.device("cpu"), weights_only=True)
         )
         ve.to(device).eval()
+
 
         t3 = T3(T3Config.multilingual())
         t3_state = load_safetensors(ckpt_dir / "t3_mtl23ls_v2.safetensors")
@@ -175,10 +176,14 @@ class ChatterboxMultilingualTTS:
         t3.to(device).eval()
 
         s3gen = S3Gen()
-        s3gen.load_state_dict(
-            torch.load(ckpt_dir / "s3gen.pt", weights_only=True)
+        s3gen_state = torch.load(
+            ckpt_dir / "s3gen.pt",
+            map_location=torch.device("cpu"),
+            weights_only=True,
         )
+        s3gen.load_state_dict(s3gen_state)
         s3gen.to(device).eval()
+
 
         tokenizer = MTLTokenizer(
             str(ckpt_dir / "grapheme_mtl_merged_expanded_v1.json")

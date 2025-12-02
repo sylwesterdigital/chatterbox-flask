@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Chatterbox Multilingual TTS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05060a;
+      --bg-elevated: #11131b;
+      --border-subtle: #262a38;
+      --accent: #4ea1ff;
+      --accent-soft: rgba(78, 161, 255, 0.12);
+      --text-main: #f5f7ff;
+      --text-muted: #9fa6c5;
+      --danger: #ff4e6a;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow-soft: 0 14px 45px rgba(0,0,0,0.6);
+      --shadow-chip: 0 0 0 1px var(--border-subtle);
+      --input-bg: #0b0d14;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+      background: radial-gradient(circle at top, #15182a 0, #05060a 55%, #020309 100%);
+      color: var(--text-main);
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1120px;
+      background: linear-gradient(145deg, rgba(255,255,255,0.02), transparent);
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: var(--shadow-soft);
+      padding: 20px 20px 18px;
+      backdrop-filter: blur(22px);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 4px 4px 0;
+    }
+
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      font-size: 1.35rem;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+
+    .pill {
+      padding: 3px 9px;
+      border-radius: 99px;
+      background: var(--accent-soft);
+      border: 1px solid rgba(78,161,255,0.4);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .chip {
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: rgba(0,0,0,0.4);
+      box-shadow: var(--shadow-chip);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 99px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(78,161,255,0.3);
+    }
+
+    .chip-badge {
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 880px) {
+      .shell {
+        padding: 16px 14px 14px;
+        border-radius: 20px;
+      }
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .pane {
+      background: radial-gradient(circle at top left, rgba(255,255,255,0.06) 0, rgba(255,255,255,0.01) 34%, transparent 60%),
+      radial-gradient(circle at bottom right, rgba(7,177,255,0.085) 0, transparent 55%);
+      background-color: rgba(5,6,10,0.92);
+      border-radius: var(--radius-lg);
+      padding: 14px 14px 12px;
+      border: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 0;
+    }
+
+    .pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pane-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .pane-sub {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    label {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      padding: 9px 10px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font: inherit;
+      font-size: 0.84rem;
+      line-height: 1.4;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(78,161,255,0.5);
+    }
+
+    select,
+    input[type="number"],
+    input[type="file"] {
+      width: 100%;
+      padding: 7px 8px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-subtle);
+      background: var(--input-bg);
+      color: var(--text-main);
+      font: inherit;
+      font-size: 0.82rem;
+      outline: none;
+    }
+
+    select:focus,
+    input[type="number"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(78,161,255,0.5);
+    }
+
+    input[type="file"] {
+      padding: 5px 6px;
+      font-size: 0.76rem;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .row > .col {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+    }
+
+    .range-value {
+      width: 3.2rem;
+      text-align: right;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .note {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+      background: rgba(0,0,0,0.4);
+      border-radius: 999px;
+      padding: 4px 9px;
+      border: 1px dashed rgba(255,255,255,0.16);
+    }
+
+    .note strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .checkbox-row input {
+      width: auto;
+    }
+
+    button {
+      border: none;
+      outline: none;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #55b1ff, #347eff);
+      color: #020308;
+      box-shadow: 0 10px 30px rgba(41,137,255,0.55);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: rgba(10,12,20,0.9);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      min-height: 1.2em;
+    }
+
+    .status.error {
+      color: var(--danger);
+    }
+
+    .audio-card {
+      background: radial-gradient(circle at top, rgba(78,161,255,0.13) 0, transparent 60%),
+      linear-gradient(145deg, rgba(255,255,255,0.05), rgba(2,3,8,0.95));
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 10px 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    audio {
+      width: 100%;
+      outline: none;
+      border-radius: 12px;
+    }
+
+    .lang-list {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      max-height: 110px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .lang-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      margin: 2px 4px 2px 0;
+      white-space: nowrap;
+    }
+
+    .lang-pill span.code {
+      font-size: 0.7rem;
+      color: var(--accent);
+    }
+
+    .lang-pill span.name {
+      font-size: 0.7rem;
+    }
+
+    .lang-pill .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div class="title-block">
+        <div class="title-row">
+          <h1>Chatterbox Multilingual TTS</h1>
+          <span class="pill">23 Languages · Zero-Shot Voice</span>
+        </div>
+        <div class="meta-row">
+          <div class="chip">
+            <span class="chip-dot"></span>
+            <span>Local inference · CPU/GPU</span>
+          </div>
+          <div class="chip-badge">Controls: Exaggeration · Temperature · CFG · Seed</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- Left pane: controls -->
+      <section class="pane">
+        <div class="pane-header">
+          <div>
+            <div class="pane-title">Synthesis Controls</div>
+            <div class="pane-sub">Text, language, reference voice and sampling behaviour.</div>
+          </div>
+        </div>
+
+        <form id="tts-form">
+          <div class="field-group">
+            <label for="text-input">Text to synthesize</label>
+            <textarea id="text-input" name="text" placeholder="Type something to speak…"></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="field-group">
+                <label for="lang-select">Language</label>
+                <select id="lang-select" name="language_id">
+                  {% for lang in languages %}
+                  <option value="{{ lang.code }}" {% if lang.code == default_lang %}selected{% endif %}>
+                    {{ lang.name }} ({{ lang.code }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col">
+              <div class="field-group">
+                <label for="seed-input">Seed <span style="font-size:0.7rem;color:var(--text-muted);">(0 = random)</span></label>
+                <input id="seed-input" type="number" name="seed" value="0" step="1" min="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="ref-audio">Reference voice (optional)</label>
+            <input id="ref-audio" type="file" name="ref_audio" accept="audio/*">
+            <div class="checkbox-row">
+              <input id="use-default-prompt" type="checkbox" name="use_default_prompt" checked>
+              <label for="use-default-prompt" style="margin:0;">Use built-in sample voice for selected language when no file is uploaded</label>
+            </div>
+            <div class="note">
+              <strong>Tip:</strong> If the reference clip language is different from the target language, set CFG to 0 for pure language transfer.
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <div class="field-group">
+                <label for="exaggeration-range">Exaggeration</label>
+                <div class="slider-wrap">
+                  <input id="exaggeration-range" type="range" min="0.25" max="2.0" step="0.05" value="0.5">
+                  <div class="range-value" id="exaggeration-value">0.50</div>
+                </div>
+                <div class="note">Controls expressiveness · neutral ≈ <strong>0.5</strong> · higher = more dramatic.</div>
+              </div>
+            </div>
+            <div class="col">
+              <div class="field-group">
+                <label for="cfg-range">CFG / Pace</label>
+                <div class="slider-wrap">
+                  <input id="cfg-range" type="range" min="0.2" max="1.0" step="0.05" value="0.5">
+                  <div class="range-value" id="cfg-value">0.50</div>
+                </div>
+                <div class="note">Guidance & pacing · lower can help slower, more deliberate speech.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="temp-range">Temperature</label>
+            <div class="slider-wrap">
+              <input id="temp-range" type="range" min="0.05" max="5.0" step="0.05" value="0.8">
+              <div class="range-value" id="temp-value">0.80</div>
+            </div>
+            <div class="note">Sampling randomness · higher = more varied output.</div>
+          </div>
+
+          <div class="actions">
+            <button id="generate-btn" type="submit" class="btn-primary">
+              <span>Generate Audio</span>
+            </button>
+            <div class="status" id="status"></div>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right pane: output + language list -->
+      <section class="pane">
+        <div class="pane-header">
+          <div>
+            <div class="pane-title">Output & Languages</div>
+            <div class="pane-sub">Listen to the last render and inspect supported languages.</div>
+          </div>
+        </div>
+
+        <div class="audio-card">
+          <div class="field-group">
+            <label>Last output</label>
+            <audio id="audio-player" controls></audio>
+          </div>
+          <button id="replay-btn" type="button" class="btn-secondary">
+            Replay
+          </button>
+        </div>
+
+        <div class="field-group">
+          <label>Supported languages (from model)</label>
+          <div class="lang-list" id="lang-list">
+            {% for lang in languages %}
+            <span class="lang-pill">
+              <span class="dot"></span>
+              <span class="name">{{ lang.name }}</span>
+              <span class="code">{{ lang.code }}</span>
+              {% if lang.has_sample %}<span style="font-size:0.7rem;color:var(--accent);">· sample</span>{% endif %}
+            </span>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script type="module">
+    const LANG_DEFAULTS = {
+      {% for lang in languages %}
+      "{{ lang.code }}": {
+        "text": {{ lang.default_text|tojson }},
+        "has_sample": {{ "true" if lang.has_sample else "false" }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    };
+
+    const form = document.getElementById("tts-form");
+    const textInput = document.getElementById("text-input");
+    const langSelect = document.getElementById("lang-select");
+    const seedInput = document.getElementById("seed-input");
+    const refInput = document.getElementById("ref-audio");
+    const useDefaultPrompt = document.getElementById("use-default-prompt");
+    const statusEl = document.getElementById("status");
+    const audioPlayer = document.getElementById("audio-player");
+    const replayBtn = document.getElementById("replay-btn");
+    const generateBtn = document.getElementById("generate-btn");
+
+    const exRange = document.getElementById("exaggeration-range");
+    const exVal = document.getElementById("exaggeration-value");
+    const cfgRange = document.getElementById("cfg-range");
+    const cfgVal = document.getElementById("cfg-value");
+    const tempRange = document.getElementById("temp-range");
+    const tempVal = document.getElementById("temp-value");
+
+    function formatFloat(v) {
+      return Number(v).toFixed(2);
+    }
+
+    function syncSlider(rangeEl, valueEl) {
+      const update = () => valueEl.textContent = formatFloat(rangeEl.value);
+      rangeEl.addEventListener("input", update);
+      update();
+    }
+
+    syncSlider(exRange, exVal);
+    syncSlider(cfgRange, cfgVal);
+    syncSlider(tempRange, tempVal);
+
+    function setStatus(msg, isError = false) {
+      statusEl.textContent = msg || "";
+      statusEl.classList.toggle("error", !!isError);
+    }
+
+    function initDefaults() {
+      const code = langSelect.value;
+      const cfg = LANG_DEFAULTS[code];
+      if (cfg && cfg.text && !textInput.value.trim()) {
+        textInput.value = cfg.text;
+      }
+      useDefaultPrompt.checked = !!(cfg && cfg.has_sample);
+    }
+
+    langSelect.addEventListener("change", () => {
+      const prevText = textInput.value.trim();
+      const code = langSelect.value;
+      const cfg = LANG_DEFAULTS[code];
+
+      if (cfg && cfg.text && (prevText === "" || prevText === cfg.text)) {
+        textInput.value = cfg.text;
+      }
+      useDefaultPrompt.checked = !!(cfg && cfg.has_sample);
+      setStatus("");
+    });
+
+    replayBtn.addEventListener("click", () => {
+      if (audioPlayer.src) {
+        audioPlayer.currentTime = 0;
+        audioPlayer.play().catch(() => {});
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      setStatus("Generating… this may take a bit on first run.");
+      generateBtn.disabled = true;
+
+      try {
+        const formData = new FormData();
+        formData.append("text", textInput.value || "");
+        formData.append("language_id", langSelect.value || "en");
+        formData.append("seed", seedInput.value || "0");
+        formData.append("exaggeration", exRange.value);
+        formData.append("temperature", tempRange.value);
+        formData.append("cfg_weight", cfgRange.value);
+        formData.append("use_default_prompt", useDefaultPrompt.checked ? "1" : "0");
+
+        if (refInput.files && refInput.files[0]) {
+          formData.append("ref_audio", refInput.files[0]);
+        }
+
+        const resp = await fetch("/api/tts", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!resp.ok) {
+          let errMsg = `HTTP ${resp.status}`;
+          try {
+            const data = await resp.json();
+            if (data && data.error) errMsg = data.error;
+          } catch (_) {}
+          throw new Error(errMsg);
+        }
+
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        audioPlayer.src = url;
+        await audioPlayer.play().catch(() => {});
+        setStatus("Done.");
+      } catch (err) {
+        setStatus(`Error: ${err.message || err}`, true);
+      } finally {
+        generateBtn.disabled = false;
+      }
+    });
+
+    initDefaults();
+  </script>
+</body>
+</html>
