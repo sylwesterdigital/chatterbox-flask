@@ -1,143 +1,213 @@
 # Chatterbox TTS - Flask UI
 <img width="1193" height="742" alt="Screenshot 2025-12-02 at 22 56 59" src="https://github.com/user-attachments/assets/fe5e57ac-5827-4429-b988-98cdd039189c" />
 
-# Chatterbox TTS
+# Chatterbox Multilingual TTS – Flask UI
 
-<img width="1200" height="600" alt="Chatterbox-Multilingual" src="https://www.resemble.ai/wp-content/uploads/2025/09/Chatterbox-Multilingual-1.png" />
+Minimal Flask web UI for [ResembleAI Chatterbox-TTS](https://github.com/resemble-ai/chatterbox), with:
 
-[![Alt Text](https://img.shields.io/badge/listen-demo_samples-blue)](https://resemble-ai.github.io/chatterbox_demopage/)
-[![Alt Text](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/ResembleAI/Chatterbox)
-[![Alt Text](https://static-public.podonos.com/badges/insight-on-pdns-sm-dark.svg)](https://podonos.com/resembleai/chatterbox)
-[![Discord](https://img.shields.io/discord/1377773249798344776?label=join%20discord&logo=discord&style=flat)](https://discord.gg/rJq9cRJBJ6)
+# Chatterbox Multilingual TTS – Flask UI
 
-_Made with ♥️ by <a href="https://resemble.ai" target="_blank"><img width="100" alt="resemble-logo-horizontal" src="https://github.com/user-attachments/assets/35cf756b-3506-4943-9c72-c05ddfa4e525" /></a>
+Minimal Flask web UI for [ResembleAI Chatterbox-TTS](https://github.com/resemble-ai/chatterbox), with:
 
-We're excited to introduce **Chatterbox Multilingual**, [Resemble AI's](https://resemble.ai) first production-grade open source TTS model supporting **23 languages** out of the box. Licensed under MIT, Chatterbox has been benchmarked against leading closed-source systems like ElevenLabs, and is consistently preferred in side-by-side evaluations.
+- 23-language multilingual TTS (ChatterboxMultilingualTTS)
+- Zero-shot voice cloning via reference audio
+- Controls for **exaggeration**, **temperature**, **CFG / pace**, and **seed**
+- Simple HTML/JS front-end (no Gradio)
 
-Whether you're working on memes, videos, games, or AI agents, Chatterbox brings your content to life across languages. It's also the first open source TTS model to support **emotion exaggeration control** with robust **multilingual zero-shot voice cloning**. Try the english only version now on our [English Hugging Face Gradio app.](https://huggingface.co/spaces/ResembleAI/Chatterbox). Or try the multilingual version on our [Multilingual Hugging Face Gradio app.](https://huggingface.co/spaces/ResembleAI/Chatterbox-Multilingual-TTS).
+> ⚠️ First run will download ~3–4 GB of model weights from Hugging Face.  
+> Make sure there is enough disk space and a stable connection.
 
-If you like the model but need to scale or tune it for higher accuracy, check out our competitively priced TTS service (<a href="https://resemble.ai">link</a>). It delivers reliable performance with ultra-low latency of sub 200ms—ideal for production use in agents, applications, or interactive media.
+---
 
-# Key Details
-- Multilingual, zero-shot TTS supporting 23 languages
-- SoTA zeroshot English TTS
-- 0.5B Llama backbone
-- Unique exaggeration/intensity control
-- Ultra-stable with alignment-informed inference
-- Trained on 0.5M hours of cleaned data
-- Watermarked outputs
-- Easy voice conversion script
-- [Outperforms ElevenLabs](https://podonos.com/resembleai/chatterbox)
+## 1. Requirements
 
-# Supported Languages 
-Arabic (ar) • Danish (da) • German (de) • Greek (el) • English (en) • Spanish (es) • Finnish (fi) • French (fr) • Hebrew (he) • Hindi (hi) • Italian (it) • Japanese (ja) • Korean (ko) • Malay (ms) • Dutch (nl) • Norwegian (no) • Polish (pl) • Portuguese (pt) • Russian (ru) • Swedish (sv) • Swahili (sw) • Turkish (tr) • Chinese (zh)
-# Tips
-- **General Use (TTS and Voice Agents):**
-  - Ensure that the reference clip matches the specified language tag. Otherwise, language transfer outputs may inherit the accent of the reference clip’s language. To mitigate this, set `cfg_weight` to `0`.
-  - The default settings (`exaggeration=0.5`, `cfg_weight=0.5`) work well for most prompts across all languages.
-  - If the reference speaker has a fast speaking style, lowering `cfg_weight` to around `0.3` can improve pacing.
+Tested on:
 
-- **Expressive or Dramatic Speech:**
-  - Try lower `cfg_weight` values (e.g. `~0.3`) and increase `exaggeration` to around `0.7` or higher.
-  - Higher `exaggeration` tends to speed up speech; reducing `cfg_weight` helps compensate with slower, more deliberate pacing.
+- macOS (Apple Silicon, M-series)
+- Python **3.11**
+- `git`
 
+GPU is **not required** – it runs on CPU, just slower.
 
-# Installation
-```shell
-pip install chatterbox-tts
+---
+
+## 2. Clone the repo
+
+```bash
+git clone https://github.com/sylwesterdigital/chatterbox-flask.git
+cd chatterbox-flask
 ```
 
-Alternatively, you can install from source:
-```shell
-# conda create -yn chatterbox python=3.11
-# conda activate chatterbox
+---
 
-git clone https://github.com/resemble-ai/chatterbox.git
-cd chatterbox
-pip install -e .
-```
-We developed and tested Chatterbox on Python 3.11 on Debian 11 OS; the versions of the dependencies are pinned in `pyproject.toml` to ensure consistency. You can modify the code or dependencies in this installation mode.
+## 3. Create and activate virtualenv
 
-# Usage
-```python
-import torchaudio as ta
-from chatterbox.tts import ChatterboxTTS
-from chatterbox.mtl_tts import ChatterboxMultilingualTTS
+Use Python 3.11 (adjust path if needed):
 
-# English example
-model = ChatterboxTTS.from_pretrained(device="cuda")
-
-text = "Ezreal and Jinx teamed up with Ahri, Yasuo, and Teemo to take down the enemy's Nexus in an epic late-game pentakill."
-wav = model.generate(text)
-ta.save("test-english.wav", wav, model.sr)
-
-# Multilingual examples
-multilingual_model = ChatterboxMultilingualTTS.from_pretrained(device=device)
-
-french_text = "Bonjour, comment ça va? Ceci est le modèle de synthèse vocale multilingue Chatterbox, il prend en charge 23 langues."
-wav_french = multilingual_model.generate(spanish_text, language_id="fr")
-ta.save("test-french.wav", wav_french, model.sr)
-
-chinese_text = "你好，今天天气真不错，希望你有一个愉快的周末。"
-wav_chinese = multilingual_model.generate(chinese_text, language_id="zh")
-ta.save("test-chinese.wav", wav_chinese, model.sr)
-
-# If you want to synthesize with a different voice, specify the audio prompt
-AUDIO_PROMPT_PATH = "YOUR_FILE.wav"
-wav = model.generate(text, audio_prompt_path=AUDIO_PROMPT_PATH)
-ta.save("test-2.wav", wav, model.sr)
-```
-See `example_tts.py` and `example_vc.py` for more examples.
-
-# Acknowledgements
-- [Cosyvoice](https://github.com/FunAudioLLM/CosyVoice)
-- [Real-Time-Voice-Cloning](https://github.com/CorentinJ/Real-Time-Voice-Cloning)
-- [HiFT-GAN](https://github.com/yl4579/HiFTNet)
-- [Llama 3](https://github.com/meta-llama/llama3)
-- [S3Tokenizer](https://github.com/xingchensong/S3Tokenizer)
-
-# Built-in PerTh Watermarking for Responsible AI
-
-Every audio file generated by Chatterbox includes [Resemble AI's Perth (Perceptual Threshold) Watermarker](https://github.com/resemble-ai/perth) - imperceptible neural watermarks that survive MP3 compression, audio editing, and common manipulations while maintaining nearly 100% detection accuracy.
-
-
-## Watermark extraction
-
-You can look for the watermark using the following script.
-
-```python
-import perth
-import librosa
-
-AUDIO_PATH = "YOUR_FILE.wav"
-
-# Load the watermarked audio
-watermarked_audio, sr = librosa.load(AUDIO_PATH, sr=None)
-
-# Initialize watermarker (same as used for embedding)
-watermarker = perth.PerthImplicitWatermarker()
-
-# Extract watermark
-watermark = watermarker.get_watermark(watermarked_audio, sample_rate=sr)
-print(f"Extracted watermark: {watermark}")
-# Output: 0.0 (no watermark) or 1.0 (watermarked)
+```bash
+python3.11 -m venv .venv
+source .venv/bin/activate
 ```
 
+You should now see `(.venv)` in your shell prompt.
 
-# Official Discord
+Upgrade `pip` inside this venv:
 
-👋 Join us on [Discord](https://discord.gg/rJq9cRJBJ6) and let's build something awesome together!
-
-# Citation
-If you find this model useful, please consider citing.
+```bash
+python -m pip install --upgrade pip
 ```
-@misc{chatterboxtts2025,
-  author       = {{Resemble AI}},
-  title        = {{Chatterbox-TTS}},
-  year         = {2025},
-  howpublished = {\url{https://github.com/resemble-ai/chatterbox}},
-  note         = {GitHub repository}
-}
+
+---
+
+## 4. Install dependencies
+
+### 4.1 Core runtime
+
+```bash
+python -m pip install \
+  "numpy>=1.24.0,<1.26.0" \
+  flask \
+  "torch==2.6.0" \
+  "torchaudio==2.6.0"
 ```
-# Disclaimer
-Don't use this model to do bad things. Prompts are sourced from freely available data on the internet.
+
+> On Apple Silicon, the wheel selection happens automatically when using Python 3.11.
+
+### 4.2 Install chatterbox (local, editable, *no deps*)
+
+This repo already contains the Chatterbox code under `src/`, so install it in editable mode:
+
+```bash
+python -m pip install -e . --no-deps
+```
+
+If your Python still complains about an “externally managed environment”, append:
+
+```bash
+python -m pip install -e . --no-deps --break-system-packages
+```
+
+(Inside a venv this is safe; it only affects this virtualenv.)
+
+### 4.3 Extra libs used by the Flask app
+
+```bash
+python -m pip install \
+  "librosa==0.11.0" \
+  "transformers==4.46.3" \
+  "diffusers==0.29.0" \
+  "resemble-perth==1.0.1" \
+  "conformer==0.3.2" \
+  "safetensors==0.5.3" \
+  "s3tokenizer==0.2.0"
+```
+
+> Chinese segmentation (`pkuseg`) is optional – if it fails to build, the model still works; Chinese text just uses a simpler tokenizer and will log a warning.
+
+---
+
+## 5. (Optional) Hugging Face token
+
+By default the model downloads from:
+
+* `ResembleAI/chatterbox` on Hugging Face
+
+If you need a private token, set:
+
+```bash
+export HF_TOKEN=your_hf_token_here
+```
+
+before running the app.
+
+---
+
+## 6. Run the Flask app
+
+From the project root with the venv active:
+
+```bash
+source .venv/bin/activate   # if not already active
+python app.py
+```
+
+You should see something like:
+
+```text
+* Serving Flask app 'app'
+* Debug mode: on
+* Running on http://127.0.0.1:8000
+```
+
+Open in a browser:
+
+* [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+On **first request**, the app will:
+
+* Download Chatterbox multilingual weights (~3–4 GB)
+* Cache them under your Hugging Face cache directory
+* Load the model onto CPU
+
+Subsequent runs will reuse the cached weights and start much faster.
+
+---
+
+## 7. Using the UI
+
+1. **Text to synthesize**
+   Type up to ~300 characters of text.
+
+2. **Language**
+   Choose any of the 23 supported languages from the dropdown.
+
+3. **Reference voice (optional)**
+
+   * Upload an audio file (e.g. `.wav`, `.m4a`, `.mp3`) as a voice profile, **or**
+   * Tick “Use built-in sample voice” to use the default demo reference for that language.
+
+4. **Controls**
+
+   * **Exaggeration**
+     Expressiveness.
+
+     * ≈0.5 → neutral
+     * Higher → more emotional / dramatic.
+   * **CFG / Pace**
+     Guidance + pacing. Lower values can slow down speech and reduce over-guidance.
+   * **Temperature**
+     Sampling randomness. Higher = more varied output.
+   * **Seed**
+     `0` = random each time; any other integer makes output more deterministic.
+
+5. Click **“Generate Audio”**
+
+   * The right panel shows the last output and lets you replay it.
+   * You can tweak parameters and generate again.
+
+---
+
+## 8. Troubleshooting
+
+* **`ModuleNotFoundError: No module named 'numpy'`**
+  The venv is either not active or did not get dependencies installed.
+
+  * Check prompt shows `(.venv)`
+  * Re-run the install steps in sections 3–4.
+
+* **PEP 668 / “externally-managed-environment”**
+  Make sure you are inside the **local `.venv`**, then use:
+
+  ```bash
+  python -m pip install --break-system-packages -e . --no-deps
+  ```
+
+* **Very slow or stuck on first generation**
+  The model weights are large and may take several minutes on the very first download + load. Later generations will be much faster.
+
+---
+
+## 9. License
+
+This repo is based on ResembleAI’s Chatterbox-TTS and follows the original MIT license (see `LICENSE`).
+
