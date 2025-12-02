@@ -1,7 +1,9 @@
-
-<img width="1200" height="600" alt="Chatterbox-Multilingual" src="https://www.resemble.ai/wp-content/uploads/2025/09/Chatterbox-Multilingual-1.png" />
+# Chatterbox TTS - Flask UI
+<img width="1193" height="742" alt="Screenshot 2025-12-02 at 22 56 59" src="https://github.com/user-attachments/assets/fe5e57ac-5827-4429-b988-98cdd039189c" />
 
 # Chatterbox TTS
+
+<img width="1200" height="600" alt="Chatterbox-Multilingual" src="https://www.resemble.ai/wp-content/uploads/2025/09/Chatterbox-Multilingual-1.png" />
 
 [![Alt Text](https://img.shields.io/badge/listen-demo_samples-blue)](https://resemble-ai.github.io/chatterbox_demopage/)
 [![Alt Text](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/ResembleAI/Chatterbox)
